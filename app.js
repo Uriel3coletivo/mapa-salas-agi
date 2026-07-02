@@ -1,10 +1,7 @@
 /* ---------------- STATE ---------------- */
 let currentFloor = 'terreo';
 let selectedRoom = null;
-let editMode = false;
 let idleTimer = null;
-let isDragging = false;
-let draggedElement = null;
 
 /* ---------------- INIT ---------------- */
 document.addEventListener('DOMContentLoaded', () => {
@@ -19,8 +16,8 @@ function renderRoomList() {
   const list = document.getElementById('roomList');
   const search = document.getElementById('searchInput').value.toLowerCase();
   
-  const terreoRooms = rooms.filter(r => r.floor === 'terreo' && r.name.toLowerCase().includes(search));
-  const andar1Rooms = rooms.filter(r => r.floor === 'andar1' && r.name.toLowerCase().includes(search));
+  const terreoRooms = rooms.filter(r => r.floor === 'terreo' && r.name.toLowerCase().indexOf(search) !== -1);
+  const andar1Rooms = rooms.filter(r => r.floor === 'andar1' && r.name.toLowerCase().indexOf(search) !== -1);
   
   list.innerHTML = '';
   
@@ -64,27 +61,33 @@ function renderMap() {
   
   plan.innerHTML = `<img src="${imagePath}" alt="Mapa ${floorLabel[currentFloor]}">`;
   
-  // Renderizar pontos das salas
+  // Adiciona a classe de foco no mapa se houver sala selecionada
+  if (selectedRoom) {
+    plan.classList.add('has-selection');
+  } else {
+    plan.classList.remove('has-selection');
+  }
+  
+  // Renderizar plaquinhas das salas
   rooms.filter(r => r.floor === currentFloor).forEach(room => {
     const dot = document.createElement('div');
     const isSelected = (selectedRoom && selectedRoom.id === room.id) ? 'selected' : '';
-    const isEdit = editMode ? 'editmode' : '';
     
-    dot.className = `dot ${room.floor} ${isSelected} ${isEdit}`;
+    dot.className = `dot ${room.floor} ${isSelected}`;
     dot.style.left = `${room.x}%`;
     dot.style.top = `${room.y}%`;
     dot.dataset.room = room.id;
-    dot.innerHTML = `<div class="dot-label">${room.name}</div>`;
+    dot.textContent = room.name; // O nome vai direto na plaquinha agora
+    
     plan.appendChild(dot);
   });
   
   // Renderizar landmarks
   landmarks.filter(l => l.floor === currentFloor).forEach(landmark => {
     const mark = document.createElement('div');
-    mark.className = `landmark ${editMode ? 'editmode' : ''}`;
+    mark.className = 'landmark';
     mark.style.left = `${landmark.x}%`;
     mark.style.top = `${landmark.y}%`;
-    mark.dataset.mark = landmark.id;
     mark.textContent = landmark.name;
     plan.appendChild(mark);
   });
@@ -101,6 +104,8 @@ function bindEvents() {
       document.querySelectorAll('.floor-toggle button').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
       currentFloor = btn.dataset.floor;
+      selectedRoom = null; // Limpa a seleção ao trocar de andar
+      renderRoomList();
       renderMap();
       resetIdle();
     });
@@ -121,18 +126,20 @@ function bindEvents() {
       document.querySelector(`[data-floor="${room.floor}"]`).classList.add('active');
     }
     
-    selectedRoom = room;
+    // Se clicar na mesma sala, desmarca. Se clicar em outra, marca a nova.
+    selectedRoom = (selectedRoom && selectedRoom.id === room.id) ? null : room;
+    
     renderRoomList();
     renderMap();
     resetIdle();
   });
   
-  // Click em ponto no mapa
+  // Click em plaquinha no mapa ou no fundo
   document.getElementById('plan').addEventListener('click', (e) => {
-    if (isDragging) return;
-    
     const dot = e.target.closest('.dot');
+    
     if (!dot) {
+      // Se clicou no fundo do mapa, limpa a seleção
       selectedRoom = null;
       renderRoomList();
       renderMap();
@@ -140,10 +147,13 @@ function bindEvents() {
       return;
     }
     
-    if (editMode) return;
-    
+    // Se clicou em uma plaquinha
     const roomId = dot.dataset.room;
-    selectedRoom = rooms.find(r => r.id === roomId);
+    const room = rooms.find(r => r.id === roomId);
+    
+    // Toggle de seleção
+    selectedRoom = (selectedRoom && selectedRoom.id === room.id) ? null : room;
+    
     renderRoomList();
     renderMap();
     resetIdle();
@@ -162,9 +172,12 @@ function startIdleTimer() {
   document.getElementById('idleOverlay').classList.remove('show');
   
   idleTimer = setTimeout(() => {
+    selectedRoom = null; // Limpa a seleção quando a tela entra em repouso
+    renderRoomList();
+    renderMap();
     document.getElementById('stage').classList.add('idle');
     document.getElementById('idleOverlay').classList.add('show');
-  }, 20000); // 20 segundos
+  }, 30000); // Aumentei para 30 segundos de inatividade
 }
 
 function resetIdle() {
