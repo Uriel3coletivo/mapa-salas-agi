@@ -38,9 +38,9 @@ const rooms = [
 ];
 
 const landmarks = [
-  { id:'recep', floor:'terreo', name:'Recepção', x:44.0, y:34.0 },
-  { id:'cafe', floor:'terreo', name:'Agi Café', x:26.4, y:43.5 },
-  { id:'estudio', floor:'andar1', name:'Estúdio', x:44.5, y:71.0 },
+  { id:'recep', floor:'terreo', name:'Recepção', x:49.8, y:24.9 },
+  { id:'cafe', floor:'terreo', name:'Agi Café', x:29.9, y:35.4 },
+  { id:'estudio', floor:'andar1', name:'Estúdio', x:50.1, y:65.5 },
 ];
 
 const floorLabel = { 
