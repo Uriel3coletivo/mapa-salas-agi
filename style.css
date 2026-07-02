@@ -2,57 +2,48 @@
 @font-face {
   font-family: 'AgibankSans';
   src: url('assets/AgibankSans-Regular.woff2') format('woff2');
-  font-weight: 400;
-  font-style: normal;
+  font-weight: 400; font-style: normal;
 }
-
 @font-face {
   font-family: 'AgibankSans';
   src: url('assets/AgibankSans-Bold.woff2') format('woff2');
-  font-weight: 700;
-  font-style: normal;
+  font-weight: 700; font-style: normal;
 }
 
 /* ---------- CORES ---------- */
 :root{
-  --bg: #000f44;         /* Azul Marinho (Fundo Geral) */
-  --panel: #0033b0;      /* Azul Médio (Sidebar e Painéis) */
-  --panel-2: #0064f9;    /* Azul Oficial (Busca e Hover) */
+  --bg: #000f44;
+  --panel: #0033b0;
+  --panel-2: #0064f9;
   --line: rgba(255, 255, 255, 0.15);
   --text: #ffffff;
   --muted: rgba(255, 255, 255, 0.7);
-  
-  --terreo: #77df40;     /* Verde Agibank (Térreo) */
-  --andar1: #ffd600;     /* Amarelo Agibank (1º Andar) */
-  
+  --terreo: #77df40;
+  --andar1: #ffd600;
   --radius: 14px;
 }
 
 * { box-sizing: border-box; margin:0; padding:0; }
 html,body { height:100%; width:100%; }
 
+/* Fundo preto no body para a "Zona Morta" se misturar com a TV */
 body {
-  background: var(--bg);
-  color: var(--text);
+  background: #000000; color: var(--text);
   font-family: 'AgibankSans', sans-serif;
-  overflow: hidden;
-  -webkit-user-select: none;
-  user-select: none;
-  touch-action: none; /* Bloqueia scroll nativo da TV */
+  overflow: hidden; -webkit-user-select: none; user-select: none; touch-action: none;
 }
 
-.app { display:flex; height:100%; width:100%; min-height:0; }
+/* ZONA MORTA: Empurra a aplicação 60px para baixo */
+.app { 
+  display:flex; height:100%; width:100%; min-height:0; 
+  padding-top: 60px; background: var(--bg);
+}
 
-/* ---------- SIDEBAR (UPSCALE PARA TV 55") ---------- */
+/* ---------- SIDEBAR ---------- */
 .sidebar {
-  width: 420px; 
-  min-width: 420px; 
-  height:100%; min-height:0;
-  background: var(--panel);
-  border-right: 1px solid var(--line);
-  display:flex; flex-direction:column;
-  padding: 32px 24px; 
-  z-index: 5;
+  width: 420px; min-width: 420px; height:100%; min-height:0;
+  background: var(--panel); border-right: 1px solid var(--line);
+  display:flex; flex-direction:column; padding: 32px 24px; z-index: 5;
 }
 
 .brand { margin-bottom: 32px; text-align: center; }
@@ -112,7 +103,6 @@ body {
   background: #fff; border: 1px solid var(--line); border-radius: var(--radius); overflow:hidden;
 }
 
-/* O MAPA: fill devolve o alinhamento perfeito da calibração */
 .plan { position:absolute; inset:0; transition: background-color 0.4s ease; background-color: #fff; }
 .plan img { width:100%; height:100%; display:block; object-fit:fill; pointer-events:none; transition: opacity 0.4s ease; }
 
@@ -121,42 +111,60 @@ body {
   position:absolute; transform: translate(-50%,-50%);
   background: rgba(0, 100, 249, 0.3); 
   color: transparent; 
-  font-family: 'AgibankSans', sans-serif; font-weight: 700; font-size: 18px;
-  display: flex; align-items: center; justify-content: center;
-  border-radius: 4px; cursor: pointer;
+  font-family: 'AgibankSans', sans-serif; font-weight: 700; 
+  font-size: 14px; line-height: 1.1;
+  display: flex; align-items: center; justify-content: center; text-align: center;
+  border-radius: 4px; cursor: pointer; padding: 4px;
   border: 2px solid transparent; transition: all 0.3s ease;
   z-index: 10;
-  overflow: hidden; /* <-- ISSO DESTRAVA O TAMANHO */
 }
 
 .dot.terreo { --neon: var(--terreo); }
 .dot.andar1 { --neon: var(--andar1); }
 
-/* ---------- EFEITO DE FOCO (ESCURECER O RESTO E ACENDER A CAIXA) ---------- */
+/* REGRA ESPECÍFICA PARA A SALA 01 (Quase invisível) */
+.dot.room-S01 {
+  background: rgba(0, 100, 249, 0.05) !important;
+}
+
 #plan.has-selection img { opacity: 0.15; filter: grayscale(50%); }
 #plan.has-selection .dot { opacity: 0.1; }
 #plan.has-selection .landmark { opacity: 0.1; }
 
-/* A sala selecionada acende, ganha borda neon e mostra o texto */
+/* ---------- ANIMAÇÕES DE DESTAQUE ---------- */
 #plan.has-selection .dot.selected {
-  opacity: 1;
-  background: rgba(0, 100, 249, 0.8); /* Azul mais forte */
-  color: var(--text); /* Mostra o texto */
-  border-color: var(--neon);
-  box-shadow: 0 0 20px var(--neon), inset 0 0 10px rgba(0,0,0,0.3);
+  opacity: 1; 
+  background: rgba(0, 100, 249, 0.8) !important; /* Força cor na Sala 01 também */
+  color: var(--text); 
+  border-color: var(--neon); 
   z-index: 50;
+  /* Animação de pulso na borda */
+  animation: borderGlow 1.5s infinite alternate;
 }
 
-/* No modo edição, mostra os textos e bordas para facilitar */
-.dot.editmode {
-  background: rgba(0, 100, 249, 0.5);
-  color: var(--text);
-  border: 1px dashed #fff;
+@keyframes borderGlow {
+  0% { box-shadow: 0 0 10px var(--neon), inset 0 0 5px rgba(0,0,0,0.3); }
+  100% { box-shadow: 0 0 30px var(--neon), inset 0 0 15px rgba(0,0,0,0.5); }
 }
-.dot.editmode.selected {
-  border: 2px solid #fff;
-  background: rgba(0, 100, 249, 0.9);
+
+/* Bullet pulsante dentro da sala */
+.pulse-bullet {
+  position: absolute;
+  top: 6px; left: 6px;
+  width: 12px; height: 12px;
+  border-radius: 50%;
+  background: var(--neon);
+  box-shadow: 0 0 10px var(--neon);
+  animation: bulletPulse 1s infinite alternate;
 }
+
+@keyframes bulletPulse {
+  0% { transform: scale(0.8); opacity: 0.7; }
+  100% { transform: scale(1.5); opacity: 1; }
+}
+
+.dot.editmode { background: rgba(0, 100, 249, 0.5); color: var(--text); border: 1px dashed #fff; }
+.dot.editmode.selected { border: 2px solid #fff; background: rgba(0, 100, 249, 0.9); }
 
 /* ---------- LANDMARKS ---------- */
 .landmark {
@@ -178,7 +186,7 @@ body {
 }
 .idle-overlay.show { opacity:1; }
 .stage.idle .plan img { opacity: .3; filter: blur(3px) saturate(0.8); }
-.stage.idle .dot { opacity: 0; } /* Esconde as caixas no descanso */
+.stage.idle .dot { opacity: 0; } 
 .stage.idle .landmark { opacity: .2; }
 
 .idle-beacon { position:relative; width: 80px; height:80px; display:flex; align-items:center; justify-content:center; }
@@ -189,7 +197,7 @@ body {
 @keyframes ring { 0% { transform: scale(.4); opacity:1; } 100% { transform: scale(1.8); opacity:0; } }
 
 .idle-overlay h2 { font-family:'AgibankSans', sans-serif; font-size: 48px; font-weight: 700; max-width: 600px; color: var(--text); }
-.idle-overlay p { font-size: 22px; color: var(--muted); max-width: 500px; }
+.idle-overlay p { font-size: 22px; color: var(--muted); max-width: 500px; line-height: 1.4; }
 
 .hint {
   position:absolute; bottom: 24px; left: 50%; transform: translateX(-50%); display:flex; align-items:center; gap:12px;
@@ -203,20 +211,5 @@ body {
 @keyframes hintpulse { 0%{ transform:scale(.5); opacity:1;} 100%{ transform:scale(1.6); opacity:0;} }
 .stage.idle .hint { opacity:0; }
 
-/* ---------- CALIBRATION PANEL ---------- */
-.calib-panel {
-  position:absolute; top:14px; right:14px; width: 300px; max-height: calc(100% - 28px);
-  background: rgba(0,15,68,.95); border: 1px solid var(--line); border-radius: 12px; padding: 14px;
-  display:none; flex-direction:column; gap:10px; z-index: 30; backdrop-filter: blur(8px);
-}
-.calib-panel.show { display:flex !important; }
-.calib-panel h3 { font-family:'AgibankSans', sans-serif; font-size: 13px; color: var(--text); }
-.calib-panel p { font-size: 11px; color: var(--muted); line-height:1.5; }
-.calib-panel textarea {
-  flex:1; min-height:160px; background: var(--panel-2); border: 1px solid var(--line); border-radius: 8px;
-  color: var(--text); font-family: monospace; font-size: 10.5px; padding: 8px; resize:none;
-}
-.calib-panel button {
-  font-family:'AgibankSans', sans-serif; font-size: 12px; font-weight:700; color: var(--bg); background: var(--terreo);
-  border: none; padding: 10px; border-radius: 8px; cursor:pointer;
-}
+.calib-panel { display: none !important; }
+.calib-panel.show { display: flex !important; }
