@@ -10,22 +10,20 @@ const rooms = [
   { id:'T5', floor:'terreo', name:'T5', x:79.2, y:82.4, w:3.9, h:10.4 },
   { id:'T6', floor:'terreo', name:'T6', x:75.4, y:82.4, w:3.8, h:10.3 },
   { id:'T7', floor:'terreo', name:'T7', x:6, y:88.3, w:8.6, h:12.9 },
-  
-  // NOVAS SALAS TÉRREO (Aparecem no menu e têm caixa azul)
-  { id:'UA1', floor:'terreo', name:'Uni Agi 1', x:60, y:50, w:8, h:8 },
-  { id:'UA2', floor:'terreo', name:'Uni Agi 2', x:70, y:50, w:8, h:8 },
-  { id:'TREIN', floor:'terreo', name:'Treinamento', x:85, y:50, w:12, h:10 },
+  { id:'UA1', floor:'terreo', name:'Uni Agi 1', x:59.4, y:17.7, w:8.3, h:24 },
+  { id:'UA2', floor:'terreo', name:'Uni Agi 2', x:67.3, y:17.6, w:7.5, h:23.9 },
+  { id:'TREIN', floor:'terreo', name:'Treinamento', x:78, y:15.5, w:11.6, h:19.2 },
   
   // 1º ANDAR
   { id:'S01', floor:'andar1', name:'Sala 01', x:64.6, y:32.6, w:9.2, h:14.4 },
-  { id:'S2',  floor:'andar1', name:'Sala 02', x:73, y:16.2, w:5, h:19.6 },
-  { id:'S3',  floor:'andar1', name:'Sala 03', x:78.3, y:11.2, w:5.4, h:9.9 },
-  { id:'S4',  floor:'andar1', name:'Sala 04', x:76.9, y:22.8, w:2.6, h:6.5 },
-  { id:'S5',  floor:'andar1', name:'Sala 05', x:79.5, y:22.8, w:2.9, h:6.4 },
-  { id:'S6',  floor:'andar1', name:'Sala 06', x:95.7, y:88, w:3.8, h:13.1 },
-  { id:'S7',  floor:'andar1', name:'Sala 07', x:91.6, y:87.8, w:4.4, h:12.9 },
-  { id:'S8',  floor:'andar1', name:'Sala 08', x:87.8, y:87.8, w:3.3, h:12.8 },
-  { id:'S9',  floor:'andar1', name:'Sala 09', x:84.8, y:90.9, w:2.8, h:6.7 },
+  { id:'S2', floor:'andar1', name:'Sala 02', x:73, y:16.2, w:5, h:19.6 },
+  { id:'S3', floor:'andar1', name:'Sala 03', x:78.3, y:11.2, w:5.4, h:9.9 },
+  { id:'S4', floor:'andar1', name:'Sala 04', x:76.9, y:22.8, w:2.6, h:6.5 },
+  { id:'S5', floor:'andar1', name:'Sala 05', x:79.5, y:22.8, w:2.9, h:6.4 },
+  { id:'S6', floor:'andar1', name:'Sala 06', x:95.7, y:88, w:3.8, h:13.1 },
+  { id:'S7', floor:'andar1', name:'Sala 07', x:91.6, y:87.8, w:4.4, h:12.9 },
+  { id:'S8', floor:'andar1', name:'Sala 08', x:87.8, y:87.8, w:3.3, h:12.8 },
+  { id:'S9', floor:'andar1', name:'Sala 09', x:84.8, y:90.9, w:2.8, h:6.7 },
   { id:'S10', floor:'andar1', name:'Sala 10', x:84.7, y:84.5, w:2.9, h:5.9 },
   { id:'S11', floor:'andar1', name:'Sala 11', x:79.2, y:82.4, w:3.8, h:10.3 },
   { id:'S12', floor:'andar1', name:'Sala 12', x:75.5, y:82.4, w:4, h:10.2 },
@@ -46,11 +44,9 @@ const landmarks = [
   { id:'recep', floor:'terreo', name:'Recepção', x:49.7, y:14.2 },
   { id:'cafe', floor:'terreo', name:'Agi Café', x:30, y:28.8, rotate: -90 },
   { id:'estudio', floor:'andar1', name:'Estúdio', x:50.1, y:69.5 },
-  
-  // TAGS BRANCAS DAS NOVAS SALAS (Para ficarem sempre visíveis por cima das caixas)
-  { id:'tag_ua1', floor:'terreo', name:'Uni Agi 1', x:60, y:50 },
-  { id:'tag_ua2', floor:'terreo', name:'Uni Agi 2', x:70, y:50 },
-  { id:'tag_trein', floor:'terreo', name:'Treinamento', x:85, y:50 }
+  { id:'tag_ua1', floor:'terreo', name:'Uni Agi 1', x:59.3, y:16.7 },
+  { id:'tag_ua2', floor:'terreo', name:'Uni Agi 2', x:67.3, y:16.9 },
+  { id:'tag_trein', floor:'terreo', name:'Treinamento', x:78.1, y:15.4 },
 ];
 
 const floorLabel = { terreo:'Térreo', andar1:'1º Andar' };
