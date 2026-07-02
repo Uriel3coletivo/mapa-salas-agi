@@ -11,7 +11,7 @@ const rooms = [
   { id:'T6', floor:'terreo', name:'T6', x:75.4, y:82.4, w:3.8, h:10.3 },
   { id:'T7', floor:'terreo', name:'T7', x:6, y:88.3, w:8.6, h:12.9 },
   
-  // NOVAS SALAS TÉRREO (Use o modo calibração para ajustar o tamanho e posição)
+  // NOVAS SALAS TÉRREO (Aparecem no menu e têm caixa azul)
   { id:'UA1', floor:'terreo', name:'Uni Agi 1', x:60, y:50, w:8, h:8 },
   { id:'UA2', floor:'terreo', name:'Uni Agi 2', x:70, y:50, w:8, h:8 },
   { id:'TREIN', floor:'terreo', name:'Treinamento', x:85, y:50, w:12, h:10 },
@@ -46,6 +46,11 @@ const landmarks = [
   { id:'recep', floor:'terreo', name:'Recepção', x:49.7, y:14.2 },
   { id:'cafe', floor:'terreo', name:'Agi Café', x:30, y:28.8, rotate: -90 },
   { id:'estudio', floor:'andar1', name:'Estúdio', x:50.1, y:69.5 },
+  
+  // TAGS BRANCAS DAS NOVAS SALAS (Para ficarem sempre visíveis por cima das caixas)
+  { id:'tag_ua1', floor:'terreo', name:'Uni Agi 1', x:60, y:50 },
+  { id:'tag_ua2', floor:'terreo', name:'Uni Agi 2', x:70, y:50 },
+  { id:'tag_trein', floor:'terreo', name:'Treinamento', x:85, y:50 }
 ];
 
 const floorLabel = { terreo:'Térreo', andar1:'1º Andar' };
