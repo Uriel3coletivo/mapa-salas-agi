@@ -76,16 +76,22 @@ function renderMap() {
   
   rooms.filter(r => r.floor === currentFloor).forEach(room => {
     const dot = document.createElement('div');
-    const isSelected = (selectedRoom && selectedRoom.id === room.id) ? 'selected' : '';
-    const isEdit = editMode ? 'editmode' : '';
+    const isSelected = (selectedRoom && selectedRoom.id === room.id);
     
-    dot.className = `dot ${room.floor} ${isSelected} ${isEdit}`;
+    // Adiciona classe específica para a Sala 01 (transparência)
+    dot.className = `dot ${room.floor} room-${room.id} ${isSelected ? 'selected' : ''} ${editMode ? 'editmode' : ''}`;
     dot.style.left = `${room.x}%`;
     dot.style.top = `${room.y}%`;
     dot.style.width = `${room.w}%`;  
     dot.style.height = `${room.h}%`; 
     dot.dataset.room = room.id;
-    dot.textContent = room.name;
+    
+    // Se estiver selecionada, injeta o bullet pulsante + o nome
+    if (isSelected) {
+      dot.innerHTML = `<div class="pulse-bullet"></div><span>${room.name}</span>`;
+    } else {
+      dot.innerHTML = `<span>${room.name}</span>`;
+    }
     
     plan.appendChild(dot);
   });
@@ -95,6 +101,11 @@ function renderMap() {
     mark.className = `landmark ${editMode ? 'editmode' : ''}`;
     mark.style.left = `${landmark.x}%`;
     mark.style.top = `${landmark.y}%`;
+    
+    if (landmark.rotate) {
+      mark.style.transform = `translate(-50%, -50%) rotate(${landmark.rotate}deg)`;
+    }
+    
     mark.dataset.mark = landmark.id;
     mark.textContent = landmark.name;
     plan.appendChild(mark);
@@ -185,7 +196,6 @@ function bindEvents() {
     resetIdle();
   });
   
-  // Atualização direta do estilo para não travar o slider
   document.getElementById('wSlider').addEventListener('input', (e) => {
     if(!selectedRoom) return;
     selectedRoom.w = parseFloat(e.target.value);
@@ -247,7 +257,6 @@ function startDrag(e) {
   draggedElement = target;
   target.classList.add('dragging');
   
-  // MÁGICA AQUI: Seleciona a sala na hora que clica para arrastar
   if (target.classList.contains('dot')) {
     const roomId = target.dataset.room;
     selectedRoom = rooms.find(r => r.id === roomId);
@@ -307,7 +316,10 @@ function endDrag() {
 
 function updateCalibOutput() {
   const roomsOutput = rooms.map(r => `  { id:'${r.id}', floor:'${r.floor}', name:'${r.name}', x:${r.x}, y:${r.y}, w:${r.w}, h:${r.h} },`).join('\n');
-  const marksOutput = landmarks.map(l => `  { id:'${l.id}', floor:'${l.floor}', name:'${l.name}', x:${l.x}, y:${l.y} },`).join('\n');
+  const marksOutput = landmarks.map(l => {
+    const rot = l.rotate ? `, rotate: ${l.rotate}` : '';
+    return `  { id:'${l.id}', floor:'${l.floor}', name:'${l.name}', x:${l.x}, y:${l.y}${rot} },`;
+  }).join('\n');
   
   document.getElementById('coordOutput').value = `const rooms = [\n${roomsOutput}\n];\n\nconst landmarks = [\n${marksOutput}\n];`;
 }
