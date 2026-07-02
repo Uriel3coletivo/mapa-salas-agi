@@ -16,14 +16,14 @@ const rooms = [
   
   // 1º ANDAR
   { id:'S01', floor:'andar1', name:'Sala 01', x:64.6, y:32.6, w:9.2, h:14.4 },
-  { id:'S2', floor:'andar1', name:'Sala 02', x:73, y:16.2, w:5, h:19.6 },
-  { id:'S3', floor:'andar1', name:'Sala 03', x:78.3, y:11.2, w:5.4, h:9.9 },
-  { id:'S4', floor:'andar1', name:'Sala 04', x:76.9, y:22.8, w:2.6, h:6.5 },
-  { id:'S5', floor:'andar1', name:'Sala 05', x:79.5, y:22.8, w:2.9, h:6.4 },
-  { id:'S6', floor:'andar1', name:'Sala 06', x:95.7, y:88, w:3.8, h:13.1 },
-  { id:'S7', floor:'andar1', name:'Sala 07', x:91.6, y:87.8, w:4.4, h:12.9 },
-  { id:'S8', floor:'andar1', name:'Sala 08', x:87.8, y:87.8, w:3.3, h:12.8 },
-  { id:'S9', floor:'andar1', name:'Sala 09', x:84.8, y:90.9, w:2.8, h:6.7 },
+  { id:'S2',  floor:'andar1', name:'Sala 02', x:73, y:16.2, w:5, h:19.6 },
+  { id:'S3',  floor:'andar1', name:'Sala 03', x:78.3, y:11.2, w:5.4, h:9.9 },
+  { id:'S4',  floor:'andar1', name:'Sala 04', x:76.9, y:22.8, w:2.6, h:6.5 },
+  { id:'S5',  floor:'andar1', name:'Sala 05', x:79.5, y:22.8, w:2.9, h:6.4 },
+  { id:'S6',  floor:'andar1', name:'Sala 06', x:95.7, y:88, w:3.8, h:13.1 },
+  { id:'S7',  floor:'andar1', name:'Sala 07', x:91.6, y:87.8, w:4.4, h:12.9 },
+  { id:'S8',  floor:'andar1', name:'Sala 08', x:87.8, y:87.8, w:3.3, h:12.8 },
+  { id:'S9',  floor:'andar1', name:'Sala 09', x:84.8, y:90.9, w:2.8, h:6.7 },
   { id:'S10', floor:'andar1', name:'Sala 10', x:84.7, y:84.5, w:2.9, h:5.9 },
   { id:'S11', floor:'andar1', name:'Sala 11', x:79.2, y:82.4, w:3.8, h:10.3 },
   { id:'S12', floor:'andar1', name:'Sala 12', x:75.5, y:82.4, w:4, h:10.2 },
@@ -43,17 +43,15 @@ const rooms = [
 const landmarks = [
   { id:'recep', floor:'terreo', name:'Recepção', x:49.7, y:14.2 },
   { id:'cafe', floor:'terreo', name:'Agi Café', x:30, y:28.8, rotate: -90 },
-  { id:'estudio', floor:'andar1', name:'Estúdio', x:50.1, y:76 }, // Desci o Estúdio
+  { id:'estudio', floor:'andar1', name:'Estúdio', x:50.1, y:76 },
   { id:'tag_ua1', floor:'terreo', name:'Uni Agi 1', x:59.3, y:16.7 },
   { id:'tag_ua2', floor:'terreo', name:'Uni Agi 2', x:67.3, y:16.9 },
   { id:'tag_trein', floor:'terreo', name:'Treinamento', x:78.1, y:15.4 },
 ];
 
-// POSIÇÃO DAS TVs (Para o pino "Você está aqui")
-// Você pode arrastar as tags brancas no modo calibração para achar o X e Y exato delas e colar aqui depois!
 const tvLocations = {
-  terreo: { x: 50, y: 50 },
-  andar1: { x: 50, y: 50 }
+  terreo: { x: 46.8, y: 22.4 },
+  andar1: { x: 47.2, y: 67.5 }
 };
 
 const floorLabel = { terreo:'Térreo', andar1:'1º Andar' };
