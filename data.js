@@ -43,10 +43,17 @@ const rooms = [
 const landmarks = [
   { id:'recep', floor:'terreo', name:'Recepção', x:49.7, y:14.2 },
   { id:'cafe', floor:'terreo', name:'Agi Café', x:30, y:28.8, rotate: -90 },
-  { id:'estudio', floor:'andar1', name:'Estúdio', x:50.1, y:69.5 },
+  { id:'estudio', floor:'andar1', name:'Estúdio', x:50.1, y:76 }, // Desci o Estúdio
   { id:'tag_ua1', floor:'terreo', name:'Uni Agi 1', x:59.3, y:16.7 },
   { id:'tag_ua2', floor:'terreo', name:'Uni Agi 2', x:67.3, y:16.9 },
   { id:'tag_trein', floor:'terreo', name:'Treinamento', x:78.1, y:15.4 },
 ];
+
+// POSIÇÃO DAS TVs (Para o pino "Você está aqui")
+// Você pode arrastar as tags brancas no modo calibração para achar o X e Y exato delas e colar aqui depois!
+const tvLocations = {
+  terreo: { x: 50, y: 50 },
+  andar1: { x: 50, y: 50 }
+};
 
 const floorLabel = { terreo:'Térreo', andar1:'1º Andar' };
