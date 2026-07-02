@@ -6,8 +6,20 @@ let idleTimer = null;
 let isDragging = false;
 let draggedElement = null;
 
+// Verifica se a URL tem o parâmetro ?tv=terreo ou ?tv=andar1
+const urlParams = new URLSearchParams(window.location.search);
+const tvParam = urlParams.get('tv'); 
+
 /* ---------------- INIT ---------------- */
 document.addEventListener('DOMContentLoaded', () => {
+  
+  // Se tiver o parâmetro na URL, já abre no andar certo
+  if (tvParam === 'terreo' || tvParam === 'andar1') {
+    currentFloor = tvParam;
+    document.querySelectorAll('.floor-toggle button').forEach(b => b.classList.remove('active'));
+    document.querySelector(`[data-floor="${tvParam}"]`).classList.add('active');
+  }
+
   renderRoomList();
   renderMap();
   bindEvents();
@@ -66,7 +78,7 @@ function renderMap() {
     plan.innerHTML = `<img src="${imagePath}" alt="Mapa ${floorLabel[currentFloor]}">`;
   }
   
-  plan.querySelectorAll('.dot, .landmark').forEach(el => el.remove());
+  plan.querySelectorAll('.dot, .landmark, .you-are-here').forEach(el => el.remove());
   
   if (selectedRoom && !editMode) {
     plan.classList.add('has-selection');
@@ -74,11 +86,11 @@ function renderMap() {
     plan.classList.remove('has-selection');
   }
   
+  // Renderiza as salas
   rooms.filter(r => r.floor === currentFloor).forEach(room => {
     const dot = document.createElement('div');
     const isSelected = (selectedRoom && selectedRoom.id === room.id);
     
-    // Adiciona classe específica para a Sala 01 (transparência)
     dot.className = `dot ${room.floor} room-${room.id} ${isSelected ? 'selected' : ''} ${editMode ? 'editmode' : ''}`;
     dot.style.left = `${room.x}%`;
     dot.style.top = `${room.y}%`;
@@ -86,7 +98,6 @@ function renderMap() {
     dot.style.height = `${room.h}%`; 
     dot.dataset.room = room.id;
     
-    // Se estiver selecionada, injeta o bullet pulsante + o nome
     if (isSelected) {
       dot.innerHTML = `<div class="pulse-bullet"></div><span>${room.name}</span>`;
     } else {
@@ -96,6 +107,7 @@ function renderMap() {
     plan.appendChild(dot);
   });
   
+  // Renderiza os landmarks
   landmarks.filter(l => l.floor === currentFloor).forEach(landmark => {
     const mark = document.createElement('div');
     mark.className = `landmark ${editMode ? 'editmode' : ''}`;
@@ -110,6 +122,17 @@ function renderMap() {
     mark.textContent = landmark.name;
     plan.appendChild(mark);
   });
+
+  // Renderiza o pino "Você está aqui" SE a tela atual for a mesma da URL
+  if (tvParam === currentFloor && tvLocations[currentFloor]) {
+    const loc = tvLocations[currentFloor];
+    const marker = document.createElement('div');
+    marker.className = 'you-are-here';
+    marker.style.left = `${loc.x}%`;
+    marker.style.top = `${loc.y}%`;
+    marker.innerHTML = `<div class="pin"></div><div class="label">Você está aqui</div>`;
+    plan.appendChild(marker);
+  }
 }
 
 /* ---------------- EVENTS ---------------- */
@@ -250,7 +273,6 @@ function disableDrag() {
 
 function startDrag(e) {
   if (!editMode) return;
-  
   const target = e.target.closest('.dot, .landmark');
   if (!target) return;
   
