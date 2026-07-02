@@ -166,16 +166,17 @@ body {
 .dot.editmode { background: rgba(0, 100, 249, 0.5); color: var(--text); border: 1px dashed #fff; }
 .dot.editmode.selected { border: 2px solid #fff; background: rgba(0, 100, 249, 0.9); }
 
-/* ---------- LANDMARKS ---------- */
+/* ---------- LANDMARKS (TAGS BRANCAS) ---------- */
 .landmark {
   position:absolute; transform: translate(-50%,-50%);
   font-family:'AgibankSans', sans-serif; font-weight:700; font-size: 16px;
   color: var(--panel-2); background: rgba(255,255,255,.9); border: 2px solid var(--panel-2);
   padding: 8px 16px; border-radius: 999px; white-space:nowrap; pointer-events:none;
   box-shadow: 0 4px 10px rgba(0,0,0,0.1); transition: opacity 0.4s ease;
+  z-index: 20;
 }
 .landmark.editmode { pointer-events: auto; cursor: grab; }
-.landmark.dragging { cursor: grabbing; z-index: 20; }
+.landmark.dragging { cursor: grabbing; z-index: 30; }
 
 /* ---------- IDLE OVERLAY ---------- */
 .idle-overlay {
@@ -211,5 +212,10 @@ body {
 @keyframes hintpulse { 0%{ transform:scale(.5); opacity:1;} 100%{ transform:scale(1.6); opacity:0;} }
 .stage.idle .hint { opacity:0; }
 
-.calib-panel { display: none !important; }
+/* ---------- CALIBRATION PANEL ---------- */
+.calib-panel { display: none !important; position:absolute; top:14px; right:14px; width: 300px; max-height: calc(100% - 28px); background: rgba(0,15,68,.95); border: 1px solid var(--line); border-radius: 12px; padding: 14px; flex-direction:column; gap:10px; z-index: 200; backdrop-filter: blur(8px); }
 .calib-panel.show { display: flex !important; }
+.calib-panel h3 { font-family:'AgibankSans', sans-serif; font-size: 13px; color: var(--text); }
+.calib-panel p { font-size: 11px; color: var(--muted); line-height:1.5; }
+.calib-panel textarea { flex:1; min-height:160px; background: var(--panel-2); border: 1px solid var(--line); border-radius: 8px; color: var(--text); font-family: monospace; font-size: 10.5px; padding: 8px; resize:none; }
+.calib-panel button { font-family:'AgibankSans', sans-serif; font-size: 12px; font-weight:700; color: var(--bg); background: var(--terreo); border: none; padding: 10px; border-radius: 8px; cursor:pointer; }
