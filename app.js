@@ -78,7 +78,7 @@ function renderMap() {
     const dot = document.createElement('div');
     const isSelected = (selectedRoom && selectedRoom.id === room.id);
     
-    // Adiciona classe específica para estilizar individualmente
+    // Adiciona classe específica para a Sala 01 (transparência)
     dot.className = `dot ${room.floor} room-${room.id} ${isSelected ? 'selected' : ''} ${editMode ? 'editmode' : ''}`;
     dot.style.left = `${room.x}%`;
     dot.style.top = `${room.y}%`;
@@ -86,6 +86,7 @@ function renderMap() {
     dot.style.height = `${room.h}%`; 
     dot.dataset.room = room.id;
     
+    // Se estiver selecionada, injeta o bullet pulsante + o nome
     if (isSelected) {
       dot.innerHTML = `<div class="pulse-bullet"></div><span>${room.name}</span>`;
     } else {
@@ -249,6 +250,7 @@ function disableDrag() {
 
 function startDrag(e) {
   if (!editMode) return;
+  
   const target = e.target.closest('.dot, .landmark');
   if (!target) return;
   
