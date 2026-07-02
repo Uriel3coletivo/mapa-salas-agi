@@ -119,14 +119,14 @@ body {
 /* ---------- BOXES DAS SALAS ---------- */
 .dot {
   position:absolute; transform: translate(-50%,-50%);
-  /* O tamanho agora vem do JS (w e h) */
-  background: rgba(0, 100, 249, 0.3); /* Azul transparente por padrão */
-  color: transparent; /* Esconde o texto quando não selecionado */
+  background: rgba(0, 100, 249, 0.3); 
+  color: transparent; 
   font-family: 'AgibankSans', sans-serif; font-weight: 700; font-size: 18px;
   display: flex; align-items: center; justify-content: center;
   border-radius: 4px; cursor: pointer;
   border: 2px solid transparent; transition: all 0.3s ease;
   z-index: 10;
+  overflow: hidden; /* <-- ISSO DESTRAVA O TAMANHO */
 }
 
 .dot.terreo { --neon: var(--terreo); }
