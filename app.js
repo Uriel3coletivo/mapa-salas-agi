@@ -6,14 +6,11 @@ let idleTimer = null;
 let isDragging = false;
 let draggedElement = null;
 
-// Verifica se a URL tem o parâmetro ?tv=terreo ou ?tv=andar1
 const urlParams = new URLSearchParams(window.location.search);
 const tvParam = urlParams.get('tv'); 
 
 /* ---------------- INIT ---------------- */
 document.addEventListener('DOMContentLoaded', () => {
-  
-  // Se tiver o parâmetro na URL, já abre no andar certo
   if (tvParam === 'terreo' || tvParam === 'andar1') {
     currentFloor = tvParam;
     document.querySelectorAll('.floor-toggle button').forEach(b => b.classList.remove('active'));
@@ -86,7 +83,6 @@ function renderMap() {
     plan.classList.remove('has-selection');
   }
   
-  // Renderiza as salas
   rooms.filter(r => r.floor === currentFloor).forEach(room => {
     const dot = document.createElement('div');
     const isSelected = (selectedRoom && selectedRoom.id === room.id);
@@ -107,7 +103,6 @@ function renderMap() {
     plan.appendChild(dot);
   });
   
-  // Renderiza os landmarks
   landmarks.filter(l => l.floor === currentFloor).forEach(landmark => {
     const mark = document.createElement('div');
     mark.className = `landmark ${editMode ? 'editmode' : ''}`;
@@ -123,13 +118,15 @@ function renderMap() {
     plan.appendChild(mark);
   });
 
-  // Renderiza o pino "Você está aqui" SE a tela atual for a mesma da URL
+  // Renderiza o pino "Você está aqui"
   if (tvParam === currentFloor && tvLocations[currentFloor]) {
     const loc = tvLocations[currentFloor];
     const marker = document.createElement('div');
-    marker.className = 'you-are-here';
+    // Adiciona classe de edição se o modo calibração estiver ativo
+    marker.className = `you-are-here ${editMode ? 'editmode' : ''}`;
     marker.style.left = `${loc.x}%`;
     marker.style.top = `${loc.y}%`;
+    marker.dataset.tv = currentFloor; // Identificador para o JS saber qual TV estamos movendo
     marker.innerHTML = `<div class="pin"></div><div class="label">Você está aqui</div>`;
     plan.appendChild(marker);
   }
@@ -273,7 +270,8 @@ function disableDrag() {
 
 function startDrag(e) {
   if (!editMode) return;
-  const target = e.target.closest('.dot, .landmark');
+  // Agora o script permite clicar no pino da TV (.you-are-here) também
+  const target = e.target.closest('.dot, .landmark, .you-are-here');
   if (!target) return;
   
   isDragging = true;
@@ -323,6 +321,12 @@ function doDrag(e) {
       mark.x = Math.round(x * 10) / 10;
       mark.y = Math.round(y * 10) / 10;
     }
+  } else if (draggedElement.classList.contains('you-are-here')) {
+    const floor = draggedElement.dataset.tv;
+    if (tvLocations[floor]) {
+      tvLocations[floor].x = Math.round(x * 10) / 10;
+      tvLocations[floor].y = Math.round(y * 10) / 10;
+    }
   }
   
   updateCalibOutput();
@@ -344,7 +348,10 @@ function updateCalibOutput() {
     return `  { id:'${l.id}', floor:'${l.floor}', name:'${l.name}', x:${l.x}, y:${l.y}${rot} },`;
   }).join('\n');
   
-  document.getElementById('coordOutput').value = `const rooms = [\n${roomsOutput}\n];\n\nconst landmarks = [\n${marksOutput}\n];`;
+  // Agora a caixinha também gera o código do tvLocations
+  const tvsOutput = `const tvLocations = {\n  terreo: { x: ${tvLocations.terreo.x}, y: ${tvLocations.terreo.y} },\n  andar1: { x: ${tvLocations.andar1.x}, y: ${tvLocations.andar1.y} }\n};`;
+  
+  document.getElementById('coordOutput').value = `const rooms = [\n${roomsOutput}\n];\n\nconst landmarks = [\n${marksOutput}\n];\n\n${tvsOutput}`;
 }
 
 /* ---------------- IDLE STATE ---------------- */
