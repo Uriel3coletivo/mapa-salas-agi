@@ -6,8 +6,10 @@ let idleTimer = null;
 let isDragging = false;
 let draggedElement = null;
 
+// LÊ OS PARÂMETROS DA URL
 const urlParams = new URLSearchParams(window.location.search);
 const tvParam = urlParams.get('tv'); 
+const isFlipped = urlParams.get('flip') === 'true'; // Verifica se o mapa deve girar
 
 /* ---------------- INIT ---------------- */
 document.addEventListener('DOMContentLoaded', () => {
@@ -75,6 +77,13 @@ function renderMap() {
     plan.innerHTML = `<img src="${imagePath}" alt="Mapa ${floorLabel[currentFloor]}">`;
   }
   
+  // APLICA A CLASSE FLIPPED SE A URL PEDIR
+  if (isFlipped) {
+    plan.classList.add('flipped');
+  } else {
+    plan.classList.remove('flipped');
+  }
+  
   plan.querySelectorAll('.dot, .landmark, .you-are-here').forEach(el => el.remove());
   
   if (selectedRoom && !editMode) {
@@ -109,8 +118,12 @@ function renderMap() {
     mark.style.left = `${landmark.x}%`;
     mark.style.top = `${landmark.y}%`;
     
-    if (landmark.rotate) {
-      mark.style.transform = `translate(-50%, -50%) rotate(${landmark.rotate}deg)`;
+    // MATEMÁTICA PARA OS LANDMARKS (Agi Café, etc) NÃO FICAREM DE CABEÇA PRA BAIXO
+    let rot = landmark.rotate ? landmark.rotate : 0;
+    if (isFlipped) rot += 180; // Se o mapa girou 180, a gente gira o texto 180 pra compensar
+    
+    if (rot !== 0) {
+      mark.style.transform = `translate(-50%, -50%) rotate(${rot}deg)`;
     }
     
     mark.dataset.mark = landmark.id;
@@ -118,15 +131,13 @@ function renderMap() {
     plan.appendChild(mark);
   });
 
-  // Renderiza o pino "Você está aqui"
   if (tvParam === currentFloor && tvLocations[currentFloor]) {
     const loc = tvLocations[currentFloor];
     const marker = document.createElement('div');
-    // Adiciona classe de edição se o modo calibração estiver ativo
     marker.className = `you-are-here ${editMode ? 'editmode' : ''}`;
     marker.style.left = `${loc.x}%`;
     marker.style.top = `${loc.y}%`;
-    marker.dataset.tv = currentFloor; // Identificador para o JS saber qual TV estamos movendo
+    marker.dataset.tv = currentFloor;
     marker.innerHTML = `<div class="pin"></div><div class="label">Você está aqui</div>`;
     plan.appendChild(marker);
   }
@@ -270,7 +281,6 @@ function disableDrag() {
 
 function startDrag(e) {
   if (!editMode) return;
-  // Agora o script permite clicar no pino da TV (.you-are-here) também
   const target = e.target.closest('.dot, .landmark, .you-are-here');
   if (!target) return;
   
@@ -301,8 +311,14 @@ function doDrag(e) {
   const clientX = e.clientX;
   const clientY = e.clientY;
   
-  const x = ((clientX - rect.left) / rect.width) * 100;
-  const y = ((clientY - rect.top) / rect.height) * 100;
+  // SE O MAPA ESTIVER INVERTIDO, INVERTE O CÁLCULO DO MOUSE TAMBÉM
+  let x = ((clientX - rect.left) / rect.width) * 100;
+  let y = ((clientY - rect.top) / rect.height) * 100;
+  
+  if (isFlipped) {
+    x = 100 - x;
+    y = 100 - y;
+  }
   
   draggedElement.style.left = `${x}%`;
   draggedElement.style.top = `${y}%`;
@@ -348,7 +364,6 @@ function updateCalibOutput() {
     return `  { id:'${l.id}', floor:'${l.floor}', name:'${l.name}', x:${l.x}, y:${l.y}${rot} },`;
   }).join('\n');
   
-  // Agora a caixinha também gera o código do tvLocations
   const tvsOutput = `const tvLocations = {\n  terreo: { x: ${tvLocations.terreo.x}, y: ${tvLocations.terreo.y} },\n  andar1: { x: ${tvLocations.andar1.x}, y: ${tvLocations.andar1.y} }\n};`;
   
   document.getElementById('coordOutput').value = `const rooms = [\n${roomsOutput}\n];\n\nconst landmarks = [\n${marksOutput}\n];\n\n${tvsOutput}`;
