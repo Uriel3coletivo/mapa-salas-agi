@@ -10,8 +10,6 @@
 
 <div class="app">
   <aside class="sidebar">
-    
-    <!-- Logo e Título -->
     <div class="brand">
       <img src="assets/logo.svg" alt="Agibank" class="logo">
       <div style="margin-top: 12px;">
@@ -19,47 +17,50 @@
         <span>Agi · Salas</span>
       </div>
     </div>
-
-    <!-- Busca -->
     <div class="search">
       <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
       <input id="searchInput" type="text" placeholder="Buscar sala...">
     </div>
-
-    <!-- Lista de Salas -->
     <div class="room-list" id="roomList"></div>
   </aside>
 
   <main class="mapwrap">
-    
-    <!-- Barra Superior -->
     <div class="topbar">
       <div class="floor-toggle">
         <button data-floor="terreo" class="active">Térreo</button>
         <button data-floor="andar1">1º Andar</button>
       </div>
       <div class="tools">
-        <!-- Botão de calibração escondido -->
-        <button class="tool-btn" id="editToggle" style="display: none;">Modo calibração</button>
+        <!-- Botão de calibração (Mude para display:block se quiser ver, ou none para esconder na TV) -->
+        <button class="tool-btn" id="editToggle" style="display: block;">Modo calibração</button>
       </div>
     </div>
 
-    <!-- Área do Mapa -->
     <div class="stage" id="stage">
       <div class="plan" id="plan"></div>
       <div class="hint"><span class="tap-icon"></span>Toque para explorar o mapa</div>
 
-      <!-- Tela de descanso (Idle) -->
       <div class="idle-overlay" id="idleOverlay">
         <div class="idle-beacon"><div class="ring"></div><div class="ring d2"></div><div class="core"></div></div>
         <h2>Toque em qualquer ponto do mapa</h2>
         <p>Encontre rapidamente sua sala de reunião — o mapa e a lista ao lado são interativos.</p>
       </div>
 
-      <!-- Painel de calibração (Escondido) -->
       <div class="calib-panel" id="calibPanel">
         <h3>Modo calibração</h3>
-        <p>Arraste os pontos até a posição exata de cada sala na planta. As coordenadas abaixo atualizam sozinhas — copie e me envie de volta.</p>
+        <p>Arraste para mover. Use as barras abaixo para ajustar o tamanho da sala selecionada.</p>
+        
+        <div id="sizeControls" style="display:none; margin: 10px 0; background: var(--bg); padding: 10px; border-radius: 8px;">
+          <div style="margin-bottom: 8px;">
+            <label style="font-size: 11px; color: var(--text);">Largura (W):</label>
+            <input type="range" id="wSlider" min="1" max="30" step="0.1" style="width: 100%;">
+          </div>
+          <div>
+            <label style="font-size: 11px; color: var(--text);">Altura (H):</label>
+            <input type="range" id="hSlider" min="1" max="30" step="0.1" style="width: 100%;">
+          </div>
+        </div>
+
         <textarea id="coordOutput" readonly></textarea>
         <button id="copyCoords">Copiar coordenadas</button>
       </div>
