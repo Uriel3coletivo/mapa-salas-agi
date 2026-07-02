@@ -4,7 +4,7 @@ let selectedRoom = null;
 let editMode = false;
 let idleTimer = null;
 let isDragging = false;
-let draggedDot = null;
+let draggedElement = null;
 
 /* ---------------- INIT ---------------- */
 document.addEventListener('DOMContentLoaded', () => {
@@ -58,6 +58,7 @@ function renderRoomList() {
 /* ---------------- RENDER MAP ---------------- */
 function renderMap() {
   const plan = document.getElementById('plan');
+  // Ajustado para o nome exato das imagens que você subiu
   const imagePath = currentFloor === 'terreo' ? 'assets/Mapa_Terreo.jpg' : 'assets/Mapa_Andar1.jpg';
   
   plan.innerHTML = `<img src="${imagePath}" alt="Mapa ${floorLabel[currentFloor]}">`;
@@ -73,12 +74,13 @@ function renderMap() {
     plan.appendChild(dot);
   });
   
-  // Renderizar landmarks
+  // Renderizar landmarks (Agi Café, Recepção, etc)
   landmarks.filter(l => l.floor === currentFloor).forEach(landmark => {
     const mark = document.createElement('div');
-    mark.className = 'landmark';
+    mark.className = `landmark ${editMode ? 'editmode' : ''}`;
     mark.style.left = `${landmark.x}%`;
     mark.style.top = `${landmark.y}%`;
+    mark.dataset.mark = landmark.id;
     mark.textContent = landmark.name;
     plan.appendChild(mark);
   });
@@ -152,6 +154,7 @@ function bindEvents() {
     if (editMode) {
       selectedRoom = null;
       enableDrag();
+      updateCalibOutput(); // Mostra as coordenadas atuais ao abrir
     } else {
       disableDrag();
     }
@@ -186,8 +189,8 @@ function enableDrag() {
   plan.addEventListener('mousemove', doDrag);
   plan.addEventListener('mouseup', endDrag);
   
-  plan.addEventListener('touchstart', startDrag);
-  plan.addEventListener('touchmove', doDrag);
+  plan.addEventListener('touchstart', startDrag, {passive: false});
+  plan.addEventListener('touchmove', doDrag, {passive: false});
   plan.addEventListener('touchend', endDrag);
 }
 
@@ -206,17 +209,18 @@ function disableDrag() {
 function startDrag(e) {
   if (!editMode) return;
   
-  const dot = e.target.closest('.dot');
-  if (!dot) return;
+  // Agora permite arrastar tanto as salas (.dot) quanto os marcos (.landmark)
+  const target = e.target.closest('.dot, .landmark');
+  if (!target) return;
   
   isDragging = true;
-  draggedDot = dot;
-  dot.classList.add('dragging');
+  draggedElement = target;
+  target.classList.add('dragging');
   e.preventDefault();
 }
 
 function doDrag(e) {
-  if (!isDragging || !draggedDot) return;
+  if (!isDragging || !draggedElement) return;
   
   const plan = document.getElementById('plan');
   const rect = plan.getBoundingClientRect();
@@ -227,15 +231,24 @@ function doDrag(e) {
   const x = ((clientX - rect.left) / rect.width) * 100;
   const y = ((clientY - rect.top) / rect.height) * 100;
   
-  draggedDot.style.left = `${x}%`;
-  draggedDot.style.top = `${y}%`;
+  draggedElement.style.left = `${x}%`;
+  draggedElement.style.top = `${y}%`;
   
-  // Atualizar data
-  const roomId = draggedDot.dataset.room;
-  const room = rooms.find(r => r.id === roomId);
-  if (room) {
-    room.x = Math.round(x * 10) / 10;
-    room.y = Math.round(y * 10) / 10;
+  // Atualizar data dependendo do que está sendo arrastado
+  if (draggedElement.classList.contains('dot')) {
+    const roomId = draggedElement.dataset.room;
+    const room = rooms.find(r => r.id === roomId);
+    if (room) {
+      room.x = Math.round(x * 10) / 10;
+      room.y = Math.round(y * 10) / 10;
+    }
+  } else if (draggedElement.classList.contains('landmark')) {
+    const markId = draggedElement.dataset.mark;
+    const mark = landmarks.find(l => l.id === markId);
+    if (mark) {
+      mark.x = Math.round(x * 10) / 10;
+      mark.y = Math.round(y * 10) / 10;
+    }
   }
   
   updateCalibOutput();
@@ -243,16 +256,18 @@ function doDrag(e) {
 }
 
 function endDrag() {
-  if (draggedDot) {
-    draggedDot.classList.remove('dragging');
+  if (draggedElement) {
+    draggedElement.classList.remove('dragging');
   }
   isDragging = false;
-  draggedDot = null;
+  draggedElement = null;
 }
 
 function updateCalibOutput() {
-  const output = rooms.map(r => `  { id:'${r.id}', floor:'${r.floor}', name:'${r.name}', x:${r.x}, y:${r.y} },`).join('\n');
-  document.getElementById('coordOutput').value = `const rooms = [\n${output}\n];`;
+  const roomsOutput = rooms.map(r => `  { id:'${r.id}', floor:'${r.floor}', name:'${r.name}', x:${r.x}, y:${r.y} },`).join('\n');
+  const marksOutput = landmarks.map(l => `  { id:'${l.id}', floor:'${l.floor}', name:'${l.name}', x:${l.x}, y:${l.y} },`).join('\n');
+  
+  document.getElementById('coordOutput').value = `const rooms = [\n${roomsOutput}\n];\n\nconst landmarks = [\n${marksOutput}\n];`;
 }
 
 /* ---------------- IDLE STATE ---------------- */
