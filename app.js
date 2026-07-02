@@ -58,7 +58,7 @@ function renderRoomList() {
 /* ---------------- RENDER MAP ---------------- */
 function renderMap() {
   const plan = document.getElementById('plan');
-  const imagePath = currentFloor === 'terreo' ? 'assets/Mapa-Terreo.jpg' : 'assets/Mapa-Andar1.jpg';
+  const imagePath = currentFloor === 'terreo' ? 'assets/Mapa_Terreo.jpg' : 'assets/Mapa_Andar1.jpg';
   
   plan.innerHTML = `<img src="${imagePath}" alt="Mapa ${floorLabel[currentFloor]}">`;
   
