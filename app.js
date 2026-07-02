@@ -62,12 +62,10 @@ function renderMap() {
   const plan = document.getElementById('plan');
   const imagePath = currentFloor === 'terreo' ? 'assets/Mapa_Terreo.jpg' : 'assets/Mapa_Andar1.jpg';
   
-  // Só recarrega a imagem se ela mudou (evita piscar)
   if(!plan.querySelector('img') || plan.querySelector('img').getAttribute('src') !== imagePath) {
     plan.innerHTML = `<img src="${imagePath}" alt="Mapa ${floorLabel[currentFloor]}">`;
   }
   
-  // Limpa elementos antigos
   plan.querySelectorAll('.dot, .landmark').forEach(el => el.remove());
   
   if (selectedRoom && !editMode) {
@@ -84,8 +82,8 @@ function renderMap() {
     dot.className = `dot ${room.floor} ${isSelected} ${isEdit}`;
     dot.style.left = `${room.x}%`;
     dot.style.top = `${room.y}%`;
-    dot.style.width = `${room.w}%`;  // Aplica a largura
-    dot.style.height = `${room.h}%`; // Aplica a altura
+    dot.style.width = `${room.w}%`;  
+    dot.style.height = `${room.h}%`; 
     dot.dataset.room = room.id;
     dot.textContent = room.name;
     
@@ -169,7 +167,6 @@ function bindEvents() {
     resetIdle();
   });
   
-  // Modo calibração
   document.getElementById('editToggle').addEventListener('click', () => {
     editMode = !editMode;
     document.getElementById('editToggle').classList.toggle('on', editMode);
@@ -188,18 +185,20 @@ function bindEvents() {
     resetIdle();
   });
   
-  // Sliders de redimensionamento
+  // Atualização direta do estilo para não travar o slider
   document.getElementById('wSlider').addEventListener('input', (e) => {
     if(!selectedRoom) return;
     selectedRoom.w = parseFloat(e.target.value);
-    renderMap();
+    const dot = document.querySelector(`.dot[data-room="${selectedRoom.id}"]`);
+    if(dot) dot.style.width = `${selectedRoom.w}%`;
     updateCalibOutput();
   });
   
   document.getElementById('hSlider').addEventListener('input', (e) => {
     if(!selectedRoom) return;
     selectedRoom.h = parseFloat(e.target.value);
-    renderMap();
+    const dot = document.querySelector(`.dot[data-room="${selectedRoom.id}"]`);
+    if(dot) dot.style.height = `${selectedRoom.h}%`;
     updateCalibOutput();
   });
 
@@ -247,6 +246,19 @@ function startDrag(e) {
   isDragging = true;
   draggedElement = target;
   target.classList.add('dragging');
+  
+  // MÁGICA AQUI: Seleciona a sala na hora que clica para arrastar
+  if (target.classList.contains('dot')) {
+    const roomId = target.dataset.room;
+    selectedRoom = rooms.find(r => r.id === roomId);
+    showSizeControls(selectedRoom);
+    
+    document.querySelectorAll('.dot').forEach(d => d.classList.remove('selected'));
+    target.classList.add('selected');
+  } else {
+    document.getElementById('sizeControls').style.display = 'none';
+  }
+  
   e.preventDefault();
 }
 
@@ -289,7 +301,6 @@ function endDrag() {
   if (draggedElement) {
     draggedElement.classList.remove('dragging');
   }
-  // Pequeno delay para não ativar o click da sala ao soltar o mouse
   setTimeout(() => isDragging = false, 50);
   draggedElement = null;
 }
