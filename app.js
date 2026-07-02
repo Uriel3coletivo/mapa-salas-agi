@@ -1,7 +1,10 @@
 /* ---------------- STATE ---------------- */
 let currentFloor = 'terreo';
 let selectedRoom = null;
+let editMode = false;
 let idleTimer = null;
+let isDragging = false;
+let draggedElement = null;
 
 /* ---------------- INIT ---------------- */
 document.addEventListener('DOMContentLoaded', () => {
@@ -59,35 +62,42 @@ function renderMap() {
   const plan = document.getElementById('plan');
   const imagePath = currentFloor === 'terreo' ? 'assets/Mapa_Terreo.jpg' : 'assets/Mapa_Andar1.jpg';
   
-  plan.innerHTML = `<img src="${imagePath}" alt="Mapa ${floorLabel[currentFloor]}">`;
+  // Só recarrega a imagem se ela mudou (evita piscar)
+  if(!plan.querySelector('img') || plan.querySelector('img').getAttribute('src') !== imagePath) {
+    plan.innerHTML = `<img src="${imagePath}" alt="Mapa ${floorLabel[currentFloor]}">`;
+  }
   
-  // Adiciona a classe de foco no mapa se houver sala selecionada
-  if (selectedRoom) {
+  // Limpa elementos antigos
+  plan.querySelectorAll('.dot, .landmark').forEach(el => el.remove());
+  
+  if (selectedRoom && !editMode) {
     plan.classList.add('has-selection');
   } else {
     plan.classList.remove('has-selection');
   }
   
-  // Renderizar plaquinhas das salas
   rooms.filter(r => r.floor === currentFloor).forEach(room => {
     const dot = document.createElement('div');
     const isSelected = (selectedRoom && selectedRoom.id === room.id) ? 'selected' : '';
+    const isEdit = editMode ? 'editmode' : '';
     
-    dot.className = `dot ${room.floor} ${isSelected}`;
+    dot.className = `dot ${room.floor} ${isSelected} ${isEdit}`;
     dot.style.left = `${room.x}%`;
     dot.style.top = `${room.y}%`;
+    dot.style.width = `${room.w}%`;  // Aplica a largura
+    dot.style.height = `${room.h}%`; // Aplica a altura
     dot.dataset.room = room.id;
-    dot.textContent = room.name; // O nome vai direto na plaquinha agora
+    dot.textContent = room.name;
     
     plan.appendChild(dot);
   });
   
-  // Renderizar landmarks
   landmarks.filter(l => l.floor === currentFloor).forEach(landmark => {
     const mark = document.createElement('div');
-    mark.className = 'landmark';
+    mark.className = `landmark ${editMode ? 'editmode' : ''}`;
     mark.style.left = `${landmark.x}%`;
     mark.style.top = `${landmark.y}%`;
+    mark.dataset.mark = landmark.id;
     mark.textContent = landmark.name;
     plan.appendChild(mark);
   });
@@ -95,23 +105,21 @@ function renderMap() {
 
 /* ---------------- EVENTS ---------------- */
 function bindEvents() {
-  // Busca
   document.getElementById('searchInput').addEventListener('input', renderRoomList);
   
-  // Toggle andar
   document.querySelectorAll('.floor-toggle button').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('.floor-toggle button').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
       currentFloor = btn.dataset.floor;
-      selectedRoom = null; // Limpa a seleção ao trocar de andar
+      selectedRoom = null;
+      document.getElementById('sizeControls').style.display = 'none';
       renderRoomList();
       renderMap();
       resetIdle();
     });
   });
   
-  // Click em sala da lista
   document.getElementById('roomList').addEventListener('click', (e) => {
     const row = e.target.closest('.room-row');
     if (!row) return;
@@ -126,43 +134,171 @@ function bindEvents() {
       document.querySelector(`[data-floor="${room.floor}"]`).classList.add('active');
     }
     
-    // Se clicar na mesma sala, desmarca. Se clicar em outra, marca a nova.
     selectedRoom = (selectedRoom && selectedRoom.id === room.id) ? null : room;
-    
     renderRoomList();
     renderMap();
     resetIdle();
   });
   
-  // Click em plaquinha no mapa ou no fundo
   document.getElementById('plan').addEventListener('click', (e) => {
+    if (isDragging) return;
+    
     const dot = e.target.closest('.dot');
     
     if (!dot) {
-      // Se clicou no fundo do mapa, limpa a seleção
       selectedRoom = null;
+      document.getElementById('sizeControls').style.display = 'none';
       renderRoomList();
       renderMap();
       resetIdle();
       return;
     }
     
-    // Se clicou em uma plaquinha
     const roomId = dot.dataset.room;
     const room = rooms.find(r => r.id === roomId);
     
-    // Toggle de seleção
-    selectedRoom = (selectedRoom && selectedRoom.id === room.id) ? null : room;
+    if (editMode) {
+      selectedRoom = room;
+      showSizeControls(room);
+    } else {
+      selectedRoom = (selectedRoom && selectedRoom.id === room.id) ? null : room;
+    }
     
     renderRoomList();
     renderMap();
     resetIdle();
   });
   
-  // Reset idle em qualquer interação
+  // Modo calibração
+  document.getElementById('editToggle').addEventListener('click', () => {
+    editMode = !editMode;
+    document.getElementById('editToggle').classList.toggle('on', editMode);
+    document.getElementById('calibPanel').classList.toggle('show', editMode);
+    
+    if (editMode) {
+      selectedRoom = null;
+      document.getElementById('sizeControls').style.display = 'none';
+      enableDrag();
+      updateCalibOutput();
+    } else {
+      disableDrag();
+    }
+    
+    renderMap();
+    resetIdle();
+  });
+  
+  // Sliders de redimensionamento
+  document.getElementById('wSlider').addEventListener('input', (e) => {
+    if(!selectedRoom) return;
+    selectedRoom.w = parseFloat(e.target.value);
+    renderMap();
+    updateCalibOutput();
+  });
+  
+  document.getElementById('hSlider').addEventListener('input', (e) => {
+    if(!selectedRoom) return;
+    selectedRoom.h = parseFloat(e.target.value);
+    renderMap();
+    updateCalibOutput();
+  });
+
+  document.getElementById('copyCoords').addEventListener('click', () => {
+    const textarea = document.getElementById('coordOutput');
+    textarea.select();
+    document.execCommand('copy');
+    const btn = document.getElementById('copyCoords');
+    const originalText = btn.textContent;
+    btn.textContent = 'Copiado!';
+    setTimeout(() => btn.textContent = originalText, 2000);
+  });
+  
   ['click', 'touchstart', 'mousemove'].forEach(evt => {
     document.addEventListener(evt, resetIdle);
   });
+}
+
+function showSizeControls(room) {
+  document.getElementById('sizeControls').style.display = 'block';
+  document.getElementById('wSlider').value = room.w;
+  document.getElementById('hSlider').value = room.h;
+}
+
+/* ---------------- DRAG (MODO CALIBRAÇÃO) ---------------- */
+function enableDrag() {
+  const plan = document.getElementById('plan');
+  plan.addEventListener('mousedown', startDrag);
+  plan.addEventListener('mousemove', doDrag);
+  plan.addEventListener('mouseup', endDrag);
+}
+
+function disableDrag() {
+  const plan = document.getElementById('plan');
+  plan.removeEventListener('mousedown', startDrag);
+  plan.removeEventListener('mousemove', doDrag);
+  plan.removeEventListener('mouseup', endDrag);
+}
+
+function startDrag(e) {
+  if (!editMode) return;
+  const target = e.target.closest('.dot, .landmark');
+  if (!target) return;
+  
+  isDragging = true;
+  draggedElement = target;
+  target.classList.add('dragging');
+  e.preventDefault();
+}
+
+function doDrag(e) {
+  if (!isDragging || !draggedElement) return;
+  
+  const plan = document.getElementById('plan');
+  const rect = plan.getBoundingClientRect();
+  
+  const clientX = e.clientX;
+  const clientY = e.clientY;
+  
+  const x = ((clientX - rect.left) / rect.width) * 100;
+  const y = ((clientY - rect.top) / rect.height) * 100;
+  
+  draggedElement.style.left = `${x}%`;
+  draggedElement.style.top = `${y}%`;
+  
+  if (draggedElement.classList.contains('dot')) {
+    const roomId = draggedElement.dataset.room;
+    const room = rooms.find(r => r.id === roomId);
+    if (room) {
+      room.x = Math.round(x * 10) / 10;
+      room.y = Math.round(y * 10) / 10;
+    }
+  } else if (draggedElement.classList.contains('landmark')) {
+    const markId = draggedElement.dataset.mark;
+    const mark = landmarks.find(l => l.id === markId);
+    if (mark) {
+      mark.x = Math.round(x * 10) / 10;
+      mark.y = Math.round(y * 10) / 10;
+    }
+  }
+  
+  updateCalibOutput();
+  e.preventDefault();
+}
+
+function endDrag() {
+  if (draggedElement) {
+    draggedElement.classList.remove('dragging');
+  }
+  // Pequeno delay para não ativar o click da sala ao soltar o mouse
+  setTimeout(() => isDragging = false, 50);
+  draggedElement = null;
+}
+
+function updateCalibOutput() {
+  const roomsOutput = rooms.map(r => `  { id:'${r.id}', floor:'${r.floor}', name:'${r.name}', x:${r.x}, y:${r.y}, w:${r.w}, h:${r.h} },`).join('\n');
+  const marksOutput = landmarks.map(l => `  { id:'${l.id}', floor:'${l.floor}', name:'${l.name}', x:${l.x}, y:${l.y} },`).join('\n');
+  
+  document.getElementById('coordOutput').value = `const rooms = [\n${roomsOutput}\n];\n\nconst landmarks = [\n${marksOutput}\n];`;
 }
 
 /* ---------------- IDLE STATE ---------------- */
@@ -172,12 +308,13 @@ function startIdleTimer() {
   document.getElementById('idleOverlay').classList.remove('show');
   
   idleTimer = setTimeout(() => {
-    selectedRoom = null; // Limpa a seleção quando a tela entra em repouso
+    selectedRoom = null;
+    document.getElementById('sizeControls').style.display = 'none';
     renderRoomList();
     renderMap();
     document.getElementById('stage').classList.add('idle');
     document.getElementById('idleOverlay').classList.add('show');
-  }, 30000); // Aumentei para 30 segundos de inatividade
+  }, 30000);
 }
 
 function resetIdle() {
