@@ -245,3 +245,18 @@ body {
 .calib-panel p { font-size: 11px; color: var(--muted); line-height:1.5; }
 .calib-panel textarea { flex:1; min-height:160px; background: var(--panel-2); border: 1px solid var(--line); border-radius: 8px; color: var(--text); font-family: monospace; font-size: 10.5px; padding: 8px; resize:none; }
 .calib-panel button { font-family:'AgibankSans', sans-serif; font-size: 12px; font-weight:700; color: var(--bg); background: var(--terreo); border: none; padding: 10px; border-radius: 8px; cursor:pointer; }
+
+/* ---------- MODO FLIP (GIRAR 180 GRAUS) ---------- */
+.plan.flipped {
+  transform: rotate(180deg);
+}
+
+/* Desvira os textos das caixas para continuarem legíveis */
+.plan.flipped .dot {
+  transform: translate(-50%, -50%) rotate(180deg);
+}
+
+/* Desvira o pino e faz ele apontar para cima em direção ao ponto */
+.plan.flipped .you-are-here {
+  transform: translate(-50%, 0) rotate(180deg);
+}
