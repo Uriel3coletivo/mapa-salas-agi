@@ -138,7 +138,6 @@ body {
   animation: borderGlow 1.5s infinite alternate;
 }
 
-/* Garante que o pino "Você está aqui" fique 100% visível quando uma sala for selecionada */
 #plan.has-selection .you-are-here { opacity: 1; }
 
 @keyframes borderGlow {
@@ -179,7 +178,7 @@ body {
   z-index: 60; pointer-events: none; transition: opacity 0.4s ease;
 }
 .you-are-here .pin {
-  width: 36px; height: 36px; background: #ff3366; 
+  width: 36px; height: 36px; background: var(--bg); /* AZUL MARINHO AQUI */
   border-radius: 50% 50% 50% 0; transform: rotate(-45deg); 
   box-shadow: 0 6px 12px rgba(0,0,0,0.3);
   display: flex; align-items: center; justify-content: center;
@@ -189,7 +188,8 @@ body {
   content: ''; width: 14px; height: 14px; background: #fff; border-radius: 50%;
 }
 .you-are-here .label {
-  background: #ff3366; color: #fff; font-family: 'AgibankSans', sans-serif;
+  background: var(--bg); /* AZUL MARINHO AQUI */
+  color: #fff; font-family: 'AgibankSans', sans-serif;
   font-size: 14px; font-weight: 700; padding: 6px 12px; border-radius: 8px;
   margin-top: 8px; white-space: nowrap; box-shadow: 0 4px 8px rgba(0,0,0,0.2);
 }
@@ -197,6 +197,10 @@ body {
   0%, 100% { transform: translateY(0) rotate(-45deg); }
   50% { transform: translateY(-10px) rotate(-45deg); }
 }
+
+/* Habilita arrastar o pino no modo calibração */
+.you-are-here.editmode { pointer-events: auto; cursor: grab; }
+.you-are-here.dragging { cursor: grabbing; z-index: 70; }
 
 /* ---------- IDLE OVERLAY (DESCANSO) ---------- */
 .idle-overlay {
