@@ -390,6 +390,15 @@ body {
   white-space:nowrap; 
   pointer-events:none;
 }
+.landmark.editmode {
+  pointer-events: auto;
+  cursor: grab;
+}
+
+.landmark.dragging {
+  cursor: grabbing;
+  z-index: 20;
+}
 
 /* ---------- IDLE OVERLAY ---------- */
 .idle-overlay {
