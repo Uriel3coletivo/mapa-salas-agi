@@ -15,15 +15,15 @@
 
 /* ---------- CORES ---------- */
 :root{
-  --bg: #000f44;         /* Azul Marinho */
-  --panel: #0033b0;      /* Azul Médio */
-  --panel-2: #0064f9;    /* Azul Oficial */
+  --bg: #000f44;         /* Azul Marinho (Fundo Geral) */
+  --panel: #0033b0;      /* Azul Médio (Sidebar e Painéis) */
+  --panel-2: #0064f9;    /* Azul Oficial (Busca e Hover) */
   --line: rgba(255, 255, 255, 0.15);
   --text: #ffffff;
   --muted: rgba(255, 255, 255, 0.7);
   
-  --terreo: #77df40;     /* Verde Agibank */
-  --andar1: #ffd600;     /* Amarelo Agibank */
+  --terreo: #77df40;     /* Verde Agibank (Térreo) */
+  --andar1: #ffd600;     /* Amarelo Agibank (1º Andar) */
   
   --radius: 14px;
 }
@@ -38,25 +38,25 @@ body {
   overflow: hidden;
   -webkit-user-select: none;
   user-select: none;
-  touch-action: none;
+  touch-action: none; /* Bloqueia scroll nativo da TV */
 }
 
 .app { display:flex; height:100%; width:100%; min-height:0; }
 
 /* ---------- SIDEBAR (UPSCALE PARA TV 55") ---------- */
 .sidebar {
-  width: 420px; /* Era 320px */
+  width: 420px; 
   min-width: 420px; 
   height:100%; min-height:0;
   background: var(--panel);
   border-right: 1px solid var(--line);
   display:flex; flex-direction:column;
-  padding: 32px 24px; /* Aumentado */
+  padding: 32px 24px; 
   z-index: 5;
 }
 
 .brand { margin-bottom: 32px; text-align: center; }
-.brand .logo { height: 50px; width: auto; } /* Logo maior */
+.brand .logo { height: 50px; width: auto; } 
 .brand h1 { font-size: 28px; font-weight: 700; margin-top: 10px; }
 .brand span { font-size: 16px; color: var(--muted); }
 
@@ -64,7 +64,7 @@ body {
 .search input {
   width:100%; background: var(--bg); border: 1px solid var(--line);
   border-radius: 14px; padding: 20px 20px 20px 50px; color: var(--text);
-  font-family:'AgibankSans', sans-serif; font-size: 20px; outline:none; /* Busca maior */
+  font-family:'AgibankSans', sans-serif; font-size: 20px; outline:none; 
 }
 .search input::placeholder { color: var(--muted); }
 .search svg { position:absolute; left:16px; top:50%; transform:translateY(-50%); width:24px; height:24px; stroke: var(--muted); }
@@ -80,11 +80,11 @@ body {
 .room-row:active { background: var(--panel-2); }
 .room-row.active { background: var(--panel-2); border-color: var(--line); box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
 
-.room-dot { width:16px; height:16px; border-radius:50%; flex-shrink:0; } /* Bolinha da lista maior */
+.room-dot { width:16px; height:16px; border-radius:50%; flex-shrink:0; } 
 .room-dot.terreo { background: var(--terreo); box-shadow: 0 0 8px var(--terreo); }
 .room-dot.andar1 { background: var(--andar1); box-shadow: 0 0 8px var(--andar1); }
 
-.room-row .name { font-size: 22px; font-weight: 700; } /* Nome da sala maior */
+.room-row .name { font-size: 22px; font-weight: 700; } 
 .room-row .floor-tag { margin-left:auto; font-size: 14px; color: var(--muted); }
 .empty-state { color: var(--muted); font-size: 18px; padding: 30px 10px; text-align:center; }
 
@@ -101,6 +101,12 @@ body {
 .floor-toggle button[data-floor="terreo"].active { background: var(--terreo); }
 .floor-toggle button[data-floor="andar1"].active { background: var(--andar1); }
 
+.tools { display:flex; align-items:center; gap:10px; }
+.tool-btn {
+  font-family:'AgibankSans', sans-serif; font-size: 13px; font-weight: 700; color: var(--muted);
+  background: var(--panel); border: 1px solid var(--line); padding: 10px 16px; border-radius: 10px; cursor:pointer;
+}
+
 .stage {
   flex:1; min-height:0; min-width:0; position:relative; margin: 0 32px 32px;
   background: #fff; border: 1px solid var(--line); border-radius: var(--radius); overflow:hidden;
@@ -110,32 +116,46 @@ body {
 .plan { position:absolute; inset:0; transition: background-color 0.4s ease; background-color: #fff; }
 .plan img { width:100%; height:100%; display:block; object-fit:fill; pointer-events:none; transition: opacity 0.4s ease; }
 
-/* ---------- PLAQUINHAS DAS SALAS (TAGS) ---------- */
+/* ---------- BOXES DAS SALAS ---------- */
 .dot {
   position:absolute; transform: translate(-50%,-50%);
-  background: var(--panel-2); color: var(--text);
+  /* O tamanho agora vem do JS (w e h) */
+  background: rgba(0, 100, 249, 0.3); /* Azul transparente por padrão */
+  color: transparent; /* Esconde o texto quando não selecionado */
   font-family: 'AgibankSans', sans-serif; font-weight: 700; font-size: 18px;
-  padding: 10px 20px; border-radius: 8px; cursor: pointer;
-  border: 3px solid transparent; transition: all 0.4s ease;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 4px; cursor: pointer;
+  border: 2px solid transparent; transition: all 0.3s ease;
   z-index: 10;
 }
 
 .dot.terreo { --neon: var(--terreo); }
 .dot.andar1 { --neon: var(--andar1); }
 
-/* ---------- EFEITO DE FOCO (ESCURECER O RESTO) ---------- */
+/* ---------- EFEITO DE FOCO (ESCURECER O RESTO E ACENDER A CAIXA) ---------- */
 #plan.has-selection img { opacity: 0.15; filter: grayscale(50%); }
-#plan.has-selection .dot { opacity: 0.2; }
-#plan.has-selection .landmark { opacity: 0.2; }
+#plan.has-selection .dot { opacity: 0.1; }
+#plan.has-selection .landmark { opacity: 0.1; }
 
-/* A sala selecionada brilha e cresce */
+/* A sala selecionada acende, ganha borda neon e mostra o texto */
 #plan.has-selection .dot.selected {
   opacity: 1;
-  transform: translate(-50%, -50%) scale(1.4);
+  background: rgba(0, 100, 249, 0.8); /* Azul mais forte */
+  color: var(--text); /* Mostra o texto */
   border-color: var(--neon);
-  box-shadow: 0 0 25px var(--neon), inset 0 0 10px rgba(0,0,0,0.3);
+  box-shadow: 0 0 20px var(--neon), inset 0 0 10px rgba(0,0,0,0.3);
   z-index: 50;
+}
+
+/* No modo edição, mostra os textos e bordas para facilitar */
+.dot.editmode {
+  background: rgba(0, 100, 249, 0.5);
+  color: var(--text);
+  border: 1px dashed #fff;
+}
+.dot.editmode.selected {
+  border: 2px solid #fff;
+  background: rgba(0, 100, 249, 0.9);
 }
 
 /* ---------- LANDMARKS ---------- */
@@ -146,8 +166,10 @@ body {
   padding: 8px 16px; border-radius: 999px; white-space:nowrap; pointer-events:none;
   box-shadow: 0 4px 10px rgba(0,0,0,0.1); transition: opacity 0.4s ease;
 }
+.landmark.editmode { pointer-events: auto; cursor: grab; }
+.landmark.dragging { cursor: grabbing; z-index: 20; }
 
-/* ---------- IDLE OVERLAY (CORRIGIDO) ---------- */
+/* ---------- IDLE OVERLAY ---------- */
 .idle-overlay {
   position:absolute; top:0; left:0; right:0; bottom:0; width:100%; height:100%;
   display:flex; align-items:center; justify-content:center; flex-direction:column;
@@ -156,7 +178,7 @@ body {
 }
 .idle-overlay.show { opacity:1; }
 .stage.idle .plan img { opacity: .3; filter: blur(3px) saturate(0.8); }
-.stage.idle .dot { opacity: .2; }
+.stage.idle .dot { opacity: 0; } /* Esconde as caixas no descanso */
 .stage.idle .landmark { opacity: .2; }
 
 .idle-beacon { position:relative; width: 80px; height:80px; display:flex; align-items:center; justify-content:center; }
@@ -181,4 +203,20 @@ body {
 @keyframes hintpulse { 0%{ transform:scale(.5); opacity:1;} 100%{ transform:scale(1.6); opacity:0;} }
 .stage.idle .hint { opacity:0; }
 
-.calib-panel { display: none !important; }
+/* ---------- CALIBRATION PANEL ---------- */
+.calib-panel {
+  position:absolute; top:14px; right:14px; width: 300px; max-height: calc(100% - 28px);
+  background: rgba(0,15,68,.95); border: 1px solid var(--line); border-radius: 12px; padding: 14px;
+  display:none; flex-direction:column; gap:10px; z-index: 30; backdrop-filter: blur(8px);
+}
+.calib-panel.show { display:flex !important; }
+.calib-panel h3 { font-family:'AgibankSans', sans-serif; font-size: 13px; color: var(--text); }
+.calib-panel p { font-size: 11px; color: var(--muted); line-height:1.5; }
+.calib-panel textarea {
+  flex:1; min-height:160px; background: var(--panel-2); border: 1px solid var(--line); border-radius: 8px;
+  color: var(--text); font-family: monospace; font-size: 10.5px; padding: 8px; resize:none;
+}
+.calib-panel button {
+  font-family:'AgibankSans', sans-serif; font-size: 12px; font-weight:700; color: var(--bg); background: var(--terreo);
+  border: none; padding: 10px; border-radius: 8px; cursor:pointer;
+}
