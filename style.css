@@ -39,6 +39,7 @@ body {
   overflow: hidden;
   -webkit-user-select: none;
   user-select: none;
+  touch-action: none; /* Bloqueia scroll nativo da TV */
 }
 
 .app { display:flex; height:100%; width:100%; min-height:0; }
